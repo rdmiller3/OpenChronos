@@ -374,13 +374,6 @@ __interrupt void TIMER0_A0_ISR(void)
 			if (sAlarm.hourly == ALARM_ENABLED) {
 				request.flag.alarm_buzzer = 1;
 			}
-            #ifdef CONFIG_TALLY
-            if (stallydata.ringrolled ||
-                (stallydata.ringpos > TALLY_RINGLOG_WARN_COUNT))
-            {
-                request.flag.alarm_buzzer = 1;
-            }
-            #endif
 		}
 		// Check if alarm needs to be turned on
 		check_alarm();

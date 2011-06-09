@@ -623,17 +623,8 @@ void process_requests(void)
 	#ifdef CONFIG_ALARM
 	if (request.flag.alarm_buzzer)
     {
-        start_buzzer(
-    #ifndef CONFIG_TALLY
-                     // Generate alarm (two signals every second)
-                     2,
-    #else
-                     // Generate 2 or 4 signals per second depending on
-                     // whether the tally ringlog is full or nearly-full.
-                     (stallydata.ringrolled ||
-                      (stallydata.ringpos > TALLY_RINGLOG_WARN_COUNT)) ? 4 : 2,
-	#endif
-                     BUZZER_ON_TICKS, BUZZER_OFF_TICKS);
+        // Generate alarm (two signals every second)
+        start_buzzer(2, BUZZER_ON_TICKS, BUZZER_OFF_TICKS);
     }
 	#endif
 	
