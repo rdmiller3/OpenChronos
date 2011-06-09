@@ -161,6 +161,13 @@ DATA["CONFIG_SIDEREAL"] = {
                 "This does NOT replace the normal clock which is still available and working."
         }
 
+DATA["CONFIG_METRICTIME"] = {
+        "name": "MetricTime Clock",
+        "depends": [],
+        "default": False,
+        "help": "Calculate and display local time as 'MetricTime'.\n"
+                "'MetricTime' divides the day into 65536 increments starting at midnight(0000) and displaying them as a 4-digit hexadecimal number."
+        }
 
 DATA["CONFIG_INFOMEM"] = {
         "name": "Information Memory Driver (2934 bytes, requires sidereal clock)",

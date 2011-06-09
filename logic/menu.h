@@ -84,6 +84,9 @@ extern const struct menu menu_L1_Time;
 #ifdef CONFIG_SIDEREAL
 extern const struct menu menu_L1_Sidereal;
 #endif
+#ifdef CONFIG_METRICTIME
+extern const struct menu menu_L1_Metrictime;
+#endif
 extern const struct menu menu_L1_Alarm;
 #ifdef CONFIG_ALTITUDE
 extern const struct menu menu_L1_Altitude;

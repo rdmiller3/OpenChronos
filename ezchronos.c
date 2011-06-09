@@ -83,6 +83,9 @@
 #ifdef CONFIG_SIDEREAL
 #include "sidereal.h"
 #endif
+#ifdef CONFIG_METRICTIME
+#include "metrictime.h"
+#endif
 
 #ifdef CONFIG_INFOMEM
 #include "infomem.h"
