@@ -80,6 +80,9 @@
 #ifdef CONFIG_PHASE_CLOCK
 #include "phase_clock.h"
 #endif
+#ifdef CONFIG_TALLY
+#include "tally.h"
+#endif
 #ifdef CONFIG_SIDEREAL
 #include "sidereal.h"
 #endif
@@ -414,6 +417,10 @@ void init_global_variables(void)
         reset_prout();
 #endif
 
+#ifdef CONFIG_TALLY
+        init_tally();
+#endif
+
 #ifdef CONFIG_PHASE_CLOCK
 	// default program
 	sPhase.program = 0;
@@ -480,6 +487,20 @@ void wakeup_event(void)
 		// Set display update flag
 		display.flag.full_update = 1;	
 	}
+    #ifdef CONFIG_TALLY
+    else if (button.flag.backlight_long)
+    {
+		// Clear button event
+		button.flag.backlight_long = 0;
+		
+		// Activate the backlight
+        sButton.backlight_status = 1;
+        sButton.backlight_timeout = 0;
+
+		// Set display update flag
+		display.flag.full_update = 1;	
+    }
+    #endif
 	// Process single button press event (after button was released)
 	else if (button.all_flags)
 	{
@@ -535,6 +556,17 @@ void wakeup_event(void)
 			// Clear button flag	
 			button.flag.down = 0;
 		}			
+        #ifdef CONFIG_TALLY
+		// BACKLIGHT button event -------------------------------
+		else if(button.flag.backlight)
+		{
+            // Increment tally counter.
+            tally_tick();
+
+			// Clear button flag	
+			button.flag.backlight = 0;
+		}
+        #endif
 	}
 	
 	// Process internal events
@@ -589,8 +621,20 @@ void process_requests(void)
 	#endif
 	
 	#ifdef CONFIG_ALARM
-	// Generate alarm (two signals every second)
-	if (request.flag.alarm_buzzer) start_buzzer(2, BUZZER_ON_TICKS, BUZZER_OFF_TICKS);
+	if (request.flag.alarm_buzzer)
+    {
+        start_buzzer(
+    #ifndef CONFIG_TALLY
+                     // Generate alarm (two signals every second)
+                     2,
+    #else
+                     // Generate 2 or 4 signals per second depending on
+                     // whether the tally ringlog is full or nearly-full.
+                     (stallydata.ringrolled ||
+                      (stallydata.ringpos > TALLY_RINGLOG_WARN_COUNT)) ? 4 : 2,
+	#endif
+                     BUZZER_ON_TICKS, BUZZER_OFF_TICKS);
+    }
 	#endif
 	
 #ifdef CONFIG_EGGTIMER

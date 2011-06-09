@@ -64,6 +64,10 @@
 #include "eggtimer.h"
 #endif
 
+#ifdef CONFIG_TALLY
+#include "tally.h"
+#endif
+
 
 // *************************************************************************************************
 // Prototypes section
@@ -296,11 +300,17 @@ __interrupt void PORT2_ISR(void)
 			// Filter bouncing noise 
 			if (BUTTON_BACKLIGHT_IS_PRESSED)
 			{
+				button.flag.backlight = 1;
+
+				// Generate button click
+				buzzer = 1;
+
+                #ifndef CONFIG_TALLY
 				sButton.backlight_status = 1;
 				sButton.backlight_timeout = 0;
 				P2OUT |= BUTTON_BACKLIGHT_PIN;
 				P2DIR |= BUTTON_BACKLIGHT_PIN;
-				button.flag.backlight = 1;
+                #endif
 			}
 		}	
 	}
@@ -363,7 +373,11 @@ __interrupt void PORT2_ISR(void)
   	
   	// ---------------------------------------------------
   	// Safe long button event detection
+    #ifdef CONFIG_TALLY
+  	if(button.flag.star || button.flag.num || button.flag.backlight) 
+    #else
   	if(button.flag.star || button.flag.num) 
+    #endif
 	{
 		// Additional debounce delay to enable safe high detection
 		Timer0_A4_Delay(CONV_MS_TO_TICKS(BUTTONS_DEBOUNCE_TIME_LEFT));
@@ -371,6 +385,9 @@ __interrupt void PORT2_ISR(void)
 		// Check if this button event is short enough
 		if (BUTTON_STAR_IS_PRESSED) button.flag.star = 0;
 		if (BUTTON_NUM_IS_PRESSED) button.flag.num = 0;	
+        #ifdef CONFIG_TALLY
+        if (BUTTON_BACKLIGHT_IS_PRESSED) button.flag.backlight = 0;
+        #endif
 	}
 	
 	// Reenable PORT2 IRQ

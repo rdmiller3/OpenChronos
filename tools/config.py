@@ -151,6 +151,16 @@ DATA["CONFIG_PROUT"] = {
         "depends": [],
         "default": False}
 
+DATA["CONFIG_TALLY"] = {
+        "name": "Tally counter/clicker with timestamped logging.",
+        "depends": [],
+        "default": False,
+        "help": "Tally backlight-button presses and log with timestamp.\n"
+                "Short presses on the backlight button are counted no matter what mode the watch is in.  For backlight without incrementing the tally, hold down the backlight button a little longer.\n"
+                "Each 'click' sounds like a regular button press and is logged with a timestamp.  The 'R' symbol will be on when the log is nearly full or it will blink when older data is being lost.\n"
+                "If the Alarm app is present, the user will be notified by FOUR buzzer pulses every hour and four per second (rather than two) when the alarm sounds.\n"
+                "The radio interface to read the log is not yet implemented."
+        }
 
 DATA["CONFIG_SIDEREAL"] = {
         "name": "Sidereal Time Clock (3418 bytes)",

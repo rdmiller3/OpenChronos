@@ -81,7 +81,11 @@
 #define LEFT_BUTTON_LONG_TIME		(1u)
 
 // Backlight time  (sec)
+#ifdef CONFIG_TALLY
+#define BACKLIGHT_TIME_ON		(1u)
+#else
 #define BACKLIGHT_TIME_ON		(3u)
+#endif
 
 // Leave set_value() function after some seconds of user inactivity
 #define INACTIVITY_TIME			(30u)
@@ -100,6 +104,9 @@ typedef union
     u16 backlight  	: 1;    // Short BACKLIGHT button press
     u16 star_long   : 1;    // Long STAR button press
     u16 num_long   	: 1;    // Long NUM button press
+    #ifdef CONFIG_TALLY
+    u16 backlight_long: 1;  // Long BACKLIGHT button press
+    #endif
   } flag;
   u16 all_flags;            // Shortcut to all display flags (for reset)
 } s_button_flags;
@@ -111,6 +118,9 @@ struct struct_button
 	u8  num_timeout;		 
 	u8 backlight_timeout;
 	u8 backlight_status;
+    #ifdef CONFIG_TALLY
+    u8 backlight_btntimeout;
+    #endif
 	s16 repeats;			
 };
 extern volatile struct struct_button sButton;

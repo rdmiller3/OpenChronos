@@ -80,6 +80,10 @@
 #include "prout.h"
 #endif
 
+#ifdef CONFIG_TALLY
+#include "tally.h"
+#endif
+
 #ifdef CONFIG_VARIO
 #include "vario.h"
 #endif
@@ -412,6 +416,18 @@ const struct menu menu_L2_Prout =
 };
 #endif
 
+#ifdef CONFIG_TALLY
+// Line2 - TALLY
+const struct menu menu_L2_Tally =
+{
+	FUNCTION(sx_tally),				// direct function
+	FUNCTION(mx_tally),				// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
+	FUNCTION(display_tally),		// display function
+	FUNCTION(update_time),			// new display data
+};
+#endif
+
 #ifdef CONFIG_STRENGTH
 // Line1 - Kieser Training timer
 const struct menu menu_L1_Strength =
@@ -502,6 +518,9 @@ const struct menu *menu_L2[]={
 	#endif
 	#ifdef CONFIG_PROUT
 	&menu_L2_Prout,
+	#endif	
+	#ifdef CONFIG_TALLY
+	&menu_L2_Tally,
 	#endif	
 	#ifdef CONFIG_USE_GPS
 	&menu_L2_Gps,
