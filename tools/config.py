@@ -166,10 +166,10 @@ DATA["CONFIG_METRICTIME"] = {
         "depends": [],
         "default": False,
         "type": "choices",
-        "values": [(0, "Normal (HH:MM)"), (1, "Metric (999)"), (2, "'Beats'"), (3, "Hex-Metric (FFFF)")],
+        "values": [(0, "Normal (HH:MM)"), (1, "Metric (9999)"), (2, "'Beats' (o999)"), (3, "Hex-Metric (FFFF)")],
         "help": "Calculate and display local time as 'MetricTime'.\n"
                 "'MetricTime' divides the day into a simple count and is displayed as a 4-digit number.\n"
-                "The decimal version counts to 999.  'Beats' is the old 'Swatch Internet time' with zero at GMT+1.  The hexadecimal version counts to 0xFFFF."
+                "The decimal version counts to 9999.  'Beats' is the old 'Swatch Internet time' which is like decimal metric but only three digits with zero at midnight GMT+1.  The hexadecimal version counts to 0xFFFF."
         }
 
 DATA["CONFIG_GMT_OFFSET"] = {
@@ -177,8 +177,9 @@ DATA["CONFIG_GMT_OFFSET"] = {
         "depends": [],
         "type": "choices",
         "default": 0,
-        "values": [(-11, "GMT-11"), (-10, "GMT-10"), (-9, "GMT-9"), (-8, "GMT-8"), (-7, "GMT-7"), (-6, "GMT-6"), (-5, "GMT-5"), (-4, "GMT-4"), (-3, "GMT-3"), (-2, "GMT-2"), (-1, "GMT-1"), (0, "GMT+12"), (1, "GMT+12"), (2, "GMT+12"), (3, "GMT+12"), (4, "GMT+12"), (5, "GMT+12"), (6, "GMT+12"), (7, "GMT+12"), (8, "GMT+12"), (9, "GMT+12"), (10, "GMT+12"), (11, "GMT+12"), (12, "GMT+12")],
-        "help": "Hours difference from GMT.  Used by 'Swatch Internet Time'."
+        "values": [(-11, "GMT-11"), (-10, "GMT-10"), (-9, "GMT-9"), (-8, "GMT-8"), (-7, "GMT-7"), (-6, "GMT-6"), (-5, "GMT-5"), (-4, "GMT-4"), (-3, "GMT-3"), (-2, "GMT-2"), (-1, "GMT-1"), (0, "GMT+0"), (1, "GMT+1"), (2, "GMT+2"), (3, "GMT+3"), (4, "GMT+4"), (5, "GMT+5"), (6, "GMT+6"), (7, "GMT+7"), (8, "GMT+8"), (9, "GMT+9"), (10, "GMT+10"), (11, "GMT+11"), (12, "GMT+12")],
+        "help": "Standard time offset from GMT.  Used by 'Swatch Internet Time'.\n"
+        "(Subtract one hour from the Daylight Saving Time offset.)"
 }
 
 DATA["CONFIG_INFOMEM"] = {

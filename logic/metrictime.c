@@ -69,17 +69,37 @@ void display_metrictime(u8 line, u8 update)
     str[0] = ' ';
     u32 tmp;
 
-#if (CONFIG_METRICTIME <= 2)
+#if (CONFIG_METRICTIME == 1)
+    tmp = ((u32)(sTime.hour) * 3600u) +
+        ((u32)(sTime.minute) * 60u) +
+        sTime.second;
+    // four digits
+    // (units/second)=(10000/(24*60*60))=(25/216)
+    tmp = (tmp * 25) / 216;
+    str[3] = (u8)('0' + (tmp % 10));
+    tmp /= 10;
+    str[2] = (u8)('0' + (tmp % 10));
+    tmp /= 10;
+    str[1] = (u8)('0' + (tmp % 10));
+    tmp /= 10;
+    str[0] = (u8)('0' + (tmp % 10));
+#endif
+
 #if (CONFIG_METRICTIME == 2)
     str[0] = 'o';
     tmp = ((u32)((sTime.hour + 23 - (CONFIG_GMT_OFFSET)) % 24) * 3600u) +
-#else
-    tmp = ((u32)(sTime.hour) * 3600u) +
-#endif
         ((u32)(sTime.minute) * 60u) +
         sTime.second;
+    #if (CONFIG_DST > 0)
+    if (dst_state != 0)
+    {
+        tmp -= 3600;
+    }
+    #endif
+    // three digits
     // (units/second)=(1000/(24*60*60))=(5/432)
     tmp = (tmp * 5) / 432;
+    str[0] = 'o';
     str[3] = (u8)('0' + (tmp % 10));
     tmp /= 10;
     str[2] = (u8)('0' + (tmp % 10));
