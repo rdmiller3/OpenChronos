@@ -84,7 +84,7 @@ extern const struct menu menu_L1_Time;
 #ifdef CONFIG_SIDEREAL
 extern const struct menu menu_L1_Sidereal;
 #endif
-#ifdef CONFIG_METRICTIME
+#if (CONFIG_METRICTIME > 0)
 extern const struct menu menu_L1_Metrictime;
 #endif
 extern const struct menu menu_L1_Alarm;

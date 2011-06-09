@@ -83,7 +83,7 @@
 #ifdef CONFIG_SIDEREAL
 #include "sidereal.h"
 #endif
-#ifdef CONFIG_METRICTIME
+#if (CONFIG_METRICTIME > 0)
 #include "metrictime.h"
 #endif
 

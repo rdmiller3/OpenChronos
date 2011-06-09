@@ -165,9 +165,21 @@ DATA["CONFIG_METRICTIME"] = {
         "name": "MetricTime Clock",
         "depends": [],
         "default": False,
+        "type": "choices",
+        "values": [(0, "Normal (HH:MM)"), (1, "Metric (999)"), (2, "'Beats'"), (3, "Hex-Metric (FFFF)")],
         "help": "Calculate and display local time as 'MetricTime'.\n"
-                "'MetricTime' divides the day into 65536 increments starting at midnight(0000) and displaying them as a 4-digit hexadecimal number."
+                "'MetricTime' divides the day into a simple count and is displayed as a 4-digit number.\n"
+                "The decimal version counts to 999.  'Beats' is the old 'Swatch Internet time' with zero at GMT+1.  The hexadecimal version counts to 0xFFFF."
         }
+
+DATA["CONFIG_GMT_OFFSET"] = {
+        "name": "GMT Offset",
+        "depends": [],
+        "type": "choices",
+        "default": 0,
+        "values": [(-11, "GMT-11"), (-10, "GMT-10"), (-9, "GMT-9"), (-8, "GMT-8"), (-7, "GMT-7"), (-6, "GMT-6"), (-5, "GMT-5"), (-4, "GMT-4"), (-3, "GMT-3"), (-2, "GMT-2"), (-1, "GMT-1"), (0, "GMT+12"), (1, "GMT+12"), (2, "GMT+12"), (3, "GMT+12"), (4, "GMT+12"), (5, "GMT+12"), (6, "GMT+12"), (7, "GMT+12"), (8, "GMT+12"), (9, "GMT+12"), (10, "GMT+12"), (11, "GMT+12"), (12, "GMT+12")],
+        "help": "Hours difference from GMT.  Used by 'Swatch Internet Time'."
+}
 
 DATA["CONFIG_INFOMEM"] = {
         "name": "Information Memory Driver (2934 bytes, requires sidereal clock)",

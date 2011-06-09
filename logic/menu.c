@@ -88,7 +88,7 @@
 #include "sidereal.h"
 #endif
 
-#ifdef CONFIG_METRICTIME
+#if (CONFIG_METRICTIME > 0)
 #include "metrictime.h"
 #endif
 
@@ -197,7 +197,7 @@ const struct menu menu_L1_Sidereal =
 };
 #endif
 
-#ifdef CONFIG_METRICTIME
+#if (CONFIG_METRICTIME > 0)
 // Line1 - MetricTime
 const struct menu menu_L1_Metrictime =
 {
@@ -463,7 +463,7 @@ const struct menu *menu_L1[]={
 	#ifdef CONFIG_SIDEREAL
 	&menu_L1_Sidereal,
 	#endif
-    #ifdef CONFIG_METRICTIME
+    #if (CONFIG_METRICTIME > 0)
     &menu_L1_Metrictime,
     #endif
 	#ifdef CONFIG_ALARM
