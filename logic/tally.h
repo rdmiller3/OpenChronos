@@ -28,16 +28,10 @@ extern void reset_tally(void);
 extern void tally_tick(void);
 extern void init_tally(void);
 
-#define TALLY_RINGLOG_MAX_ENTRIES (800u)
-#define TALLY_RINGLOG_WARN_COUNT ((TALLY_RINGLOG_MAX_ENTRIES * 9u) / 10u)
-
 struct tallydata
 {
     u16 count;
     u8 countchars[6];
-    u16 ringpos;
-    u32 ringlog[TALLY_RINGLOG_MAX_ENTRIES]; // in seconds since Y2K
-    u8 ringrolled;
 };
 
 extern struct tallydata stallydata;
