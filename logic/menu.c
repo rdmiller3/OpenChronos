@@ -88,6 +88,10 @@
 #include "sidereal.h"
 #endif
 
+#if (CONFIG_METRICTIME > 0)
+#include "metrictime.h"
+#endif
+
 #ifdef CONFIG_STRENGTH
 #include "strength.h"
 #endif
@@ -190,6 +194,18 @@ const struct menu menu_L1_Sidereal =
 	FUNCTION(menu_skip_next),	// next item function
 	FUNCTION(display_sidereal),	// display function
 	FUNCTION(update_sidereal),	// new display data
+};
+#endif
+
+#if (CONFIG_METRICTIME > 0)
+// Line1 - MetricTime
+const struct menu menu_L1_Metrictime =
+{
+	FUNCTION(sx_metrictime),			// direct function
+	FUNCTION(mx_metrictime),			// sub menu function
+	FUNCTION(menu_skip_next),	// next item function
+	FUNCTION(display_metrictime),		// display function
+	FUNCTION(update_time),		// new display data
 };
 #endif
 
@@ -447,6 +463,9 @@ const struct menu *menu_L1[]={
 	#ifdef CONFIG_SIDEREAL
 	&menu_L1_Sidereal,
 	#endif
+    #if (CONFIG_METRICTIME > 0)
+    &menu_L1_Metrictime,
+    #endif
 	#ifdef CONFIG_ALARM
 	&menu_L1_Alarm,
 	#endif

@@ -83,6 +83,9 @@
 #ifdef CONFIG_SIDEREAL
 #include "sidereal.h"
 #endif
+#if (CONFIG_METRICTIME > 0)
+#include "metrictime.h"
+#endif
 
 #ifdef CONFIG_INFOMEM
 #include "infomem.h"
