@@ -68,6 +68,9 @@ typedef enum
   SIMPLICITI_PHASE_CLOCK_START,	// Start new phase
   SIMPLICITI_PHASE_CLOCK,	// Phase Clock is running
 #endif
+#ifdef CONFIG_TALLY
+  SIMPLICITI_TALLY,			// Tally info
+#endif
 } simpliciti_mode_t;
 
 // Stop SimpliciTI transmission after 60 minutes to save power

@@ -89,6 +89,10 @@
 #include "strength.h"
 #endif
 
+#ifdef CONFIG_TALLY
+#include "tally.h"
+#endif
+
 // *************************************************************************************************
 // Prototypes section
 void Timer0_Init(void);
@@ -619,6 +623,24 @@ __interrupt void TIMER0_A0_ISR(void)
 		{
 			sButton.num_timeout = 0;
 		}
+
+        #ifdef CONFIG_TALLY
+		if (BUTTON_BACKLIGHT_IS_PRESSED) 	
+		{
+			sButton.backlight_btntimeout++;
+		
+			// Check if button was held low for some seconds
+			if (sButton.backlight_btntimeout > LEFT_BUTTON_LONG_TIME) 
+			{
+				button.flag.backlight_long = 1;
+				sButton.backlight_btntimeout = 0;
+			}
+		}
+		else
+		{
+			sButton.backlight_btntimeout = 0;
+		}
+        #endif
 	}
 	
 	// Exit from LPM3 on RETI
