@@ -1,0 +1,261 @@
+diff --git a/README b/README
+index d45b5ba..499e9d4 100644
+--- a/README
++++ b/README
+@@ -1,23 +1,24 @@
+ 
+-Updates the hidden menu RFBSL to work better.
++Updates the eggtimer to be fully working, with a slightly reduced code-size.
+ 
+ 
+ == Status ==
+ 
+-Should be fully functional.  The hidden menu RFBSL places the wireless
+-update (RFBSL) menu entry as a sub-menu with the battery voltage monitor.
++Should be fully functional. Can be run concurrently with the stopwatch
++without harm.  Can also be run in the background (i.e. you can navigate
++away from its menu and it will still run and go off at the correct time.)
+ 
+-This update makes toggling between the battery and rfbsl behave like a
+-normal submenu (uses the down arrow), as well as fixes some pre-processor
+-issues.  Specifically, disabling the battery voltage monitor AND enabling
+-the hidden rfbsl menu would result in no rfbsl menu, forcing the user to
+-use the (SLOW!) USB programmer for the next firmware upload.
++The icon used for it ("R" with a circle around it) is on solid for when
++its menu entry is active, and blinks when running, even if on a separate
++menu (menu entry not active).
+ 
+-To-do idea (from gibbons): merge the battery, rfbsl, and sync functions
+-all into one menu (a "hardware" or "tools" menu, for example). Ideally,
+-also make it easier to pick and choose from these three options without
+-needing ridiculous preprocessor commands, e.g.
+-#if !defined(CONFIG_BATTERY) && defined(CONFIG_DISCRET_RFBSL) && ...
++Resolution is in seconds, maximum hours is 19, max minutes is 99, and max
++seconds is 99. (Note that a time of 2:90:00 == 3:30:00, since the minutes
++will rollover to 59 after 90 minutes, not back up to 90 --> 2:90:00...
++2:89:59...2:89:58......2:00:01...2:00:00...1:59:59...)
++
++These updates reduce the (.elf) delta compiled codesize by about 40 bytes,
++from 1524 to 1480.
+ 
+ 
+ == Requirements ==
+diff --git a/logic/menu.c b/logic/menu.c
+index 4e8e240..0463b1b 100644
+--- a/logic/menu.c
++++ b/logic/menu.c
+@@ -318,18 +318,15 @@ const struct menu menu_L2_Eggtimer =
+ #ifdef CONFIG_BATTERY
+ const struct menu menu_L2_Battery =
+ {
+-	#ifdef CONFIG_USE_DISCRET_RFBSL
+-	FUNCTION(sx_rfbsl), // sub menu function
+-	FUNCTION(mx_rfbsl), // direct function
+-	FUNCTION(nx_rfbsl), // next item function
+-	FUNCTION(display_discret_rfbsl),
++	FUNCTION(dummy),					// direct function
++	#ifndef CONFIG_USE_DISCRET_RFBSL
++	FUNCTION(dummy),					// sub menu function
+ 	#else
+-	FUNCTION(dummy), // sub menu function
+-	FUNCTION(dummy), // direct function
+-	FUNCTION(menu_skip_next), // next item function
+-	FUNCTION(display_battery_V), // display function
++	FUNCTION(sx_rfbsl),					//sub function calls RFBSL
+ 	#endif
+-	FUNCTION(update_battery_voltage), // new display data
++	FUNCTION(menu_skip_next),			// next item function
++	FUNCTION(display_battery_V),		// display function
++	FUNCTION(update_battery_voltage),	// new display data
+ };
+ #endif
+ #ifdef CONFIG_PHASE_CLOCK
+@@ -391,10 +388,7 @@ const struct menu menu_L2_CalDist =
+ 	//&menu_L2_RFBSL,
+ };
+ #endif
+-
+-// Include independent RFBSL menu if battery menu disabled, or if user didn't
+-// want the hidden RFBSL menu
+-#if !defined(CONFIG_BATTERY) || !defined(CONFIG_USE_DISCRET_RFBSL)
++#ifndef CONFIG_USE_DISCRET_RFBSL
+ // Line2 - RFBSL
+ const struct menu menu_L2_RFBSL =
+ {
+@@ -503,7 +497,7 @@ const struct menu *menu_L2[]={
+ 	#ifndef ELIMINATE_BLUEROBIN
+ 	&menu_L2_CalDist,
+ 	#endif
+-	#if !defined(CONFIG_USE_DISCRET_RFBSL) || !defined(CONFIG_BATTERY)
++	#ifndef CONFIG_USE_DISCRET_RFBSL
+ 	&menu_L2_RFBSL,
+ 	#endif
+ 	#ifdef CONFIG_PROUT
+diff --git a/logic/menu.h b/logic/menu.h
+index cc4090a..d507ac0 100644
+--- a/logic/menu.h
++++ b/logic/menu.h
+@@ -116,7 +116,7 @@ extern const struct menu menu_L2_Sync;
+ 
+ extern const struct menu menu_L2_CalDist;
+ 
+-#if !defined(CONFIG_BATTERY) || !defined(CONFIG_USE_DISCRET_RFBSL)
++#ifndef CONFIG_USE_DISCRET_RFBSL
+ extern const struct menu menu_L2_RFBSL;
+ #endif
+ 
+diff --git a/logic/rfbsl.c b/logic/rfbsl.c
+index a7a1f98..f97f485 100644
+--- a/logic/rfbsl.c
++++ b/logic/rfbsl.c
+@@ -47,7 +47,6 @@
+ #include "ports.h"
+ 
+ // logic
+-#include "battery.h"
+ #include "rfbsl.h"
+ //pfs
+ #ifndef ELIMINATE_BLUEROBIN
+@@ -65,7 +64,7 @@ u8 locked = 1;
+ // Extern section
+ extern void menu_skip_next(line_t line); //ezchronos.c
+ 
+-
++#ifndef CONFIG_USE_DISCRET_RFBSL
+ // *************************************************************************************************
+ // @fn          mx_rfbsl
+ // @brief       This functions starts the RFBSL
+@@ -104,44 +103,59 @@ void mx_rfbsl(u8 line)
+ 
+ 
+ }
+-
+-
++#endif
+ // *************************************************************************************************
+ // @fn          sx_rfbsl
+-// @brief       This functions locks/unlocks the RFBSL (or toggles between battery and rfbsl)
++// @brief       This functions locks/unlocks the RFBSL
+ // @param       line		LINE1, LINE2
+ // @return      none
+ // *************************************************************************************************
+ void sx_rfbsl(u8 line)
+ {
+-#if defined(CONFIG_USE_DISCRET_RFBSL) && defined(CONFIG_BATTERY)
+-	if (locked) { // Was in battery mode, toggle to rfbsl mode
+-		locked = 0;
+-
+-		// The next bit is a little crude, but it works
+-		clear_line(LINE2);
+-		display_battery_V(LINE2, DISPLAY_LINE_CLEAR);
+-		display_rfbsl(LINE2, DISPLAY_LINE_UPDATE_FULL);
+-	}
+-	else { // Was in rfbsl mode, toggle to battery mode
+-		locked = 1;
+-		clear_line(LINE2);
+-		display_rfbsl(LINE2, DISPLAY_LINE_CLEAR); // Currently doesn't do anything
+-		display_battery_V(LINE2, DISPLAY_LINE_UPDATE_FULL);
+-	}
++#ifdef CONFIG_USE_DISCRET_RFBSL
++	clear_line(LINE2);
++	display_rfbsl(LINE2, DISPLAY_LINE_UPDATE_FULL);
++
++	// Loop values until all are set or user breaks	set
++	 while(1)
++	  {
++	    // Idle timeout: exit without saving
++	    if (sys.flag.idle_timeout || button.flag.num)
++	    {
++	      // Exit
++	      break;
++	    }
++	    if (button.flag.down)
++	      {
++	    	// Exit if SimpliciTI stack is active
++	    	if (is_rf()) return;
++
++	    	// Before entering RFBSL clear the LINE1 Symbols
++	    	display_symbol(LCD_SYMB_AM, SEG_OFF);
++
++	    	clear_line(LINE1);
++
++	    	// Write RAM to indicate we will be downloading the RAM Updater first
++	    	display_chars(LCD_SEG_L1_3_0, (u8 *)" RAM", SEG_ON);
++
++	    	// Call RFBSL
++	    	CALL_RFSBL();
++	      }
++	  }
++
+ #else
+-	message.flag.prepare = 1;
+-	if(locked) {
+-		message.flag.type_unlocked = 1;
+-		locked = 0;
+-	} else {
+-		message.flag.type_locked = 1;
+-		locked = 1;
+-	}
++    message.flag.prepare = 1;
++    if(locked) {
++        message.flag.type_unlocked = 1;
++        locked = 0;
++    } else {
++        message.flag.type_locked = 1;
++        locked = 1;
++    }
+ #endif
+ }
+ 
+-
++#ifndef CONFIG_USE_DISCRET_RFBSL
+ // *************************************************************************************************
+ // @fn          nx_rfbsl
+ // @brief       This function locks the RFBSL and switches to next menu item
+@@ -153,7 +167,7 @@ void nx_rfbsl(u8 line)
+ 	locked = 1;
+ 	menu_skip_next(line);
+ }
+-
++#endif
+ 
+ // *************************************************************************************************
+ // @fn          display_rfbsl
+@@ -169,23 +183,3 @@ void display_rfbsl(u8 line, u8 update)
+ 		display_chars(LCD_SEG_L2_5_0, (u8 *)" RFBSL", SEG_ON);
+ 	}
+ }
+-
+-
+-// *************************************************************************************************
+-// @fn          display_discret_rfbsl
+-// @brief       Discrete RFBSL display routine: auto selects battery or rfbsl, based on current menu
+-// @param       u8 line			LINE2
+-//		u8 update		DISPLAY_LINE_UPDATE_FULL
+-// @return      none
+-// *************************************************************************************************
+-#if defined(CONFIG_USE_DISCRET_RFBSL) && defined(CONFIG_BATTERY)
+-void display_discret_rfbsl(u8 line, u8 update)
+-{
+-	if (locked) { // battery mode
+-		display_battery_V(line, update);
+-	}
+-	else { // rfbsl mode
+-		display_rfbsl(line, update);
+-	}
+-}
+-#endif
+diff --git a/logic/rfbsl.h b/logic/rfbsl.h
+index 803fd8a..376a434 100644
+--- a/logic/rfbsl.h
++++ b/logic/rfbsl.h
+@@ -42,9 +42,6 @@ extern void sx_rfbsl(u8 line);
+ extern void mx_rfbsl(u8 line);
+ extern void nx_rfbsl(u8 line);
+ extern void display_rfbsl(u8 line, u8 update);
+-#if defined(CONFIG_USE_DISCRET_RFBSL) && defined(CONFIG_BATTERY)
+-extern void display_discret_rfbsl(u8 line, u8 update);
+-#endif
+ 
+ 
+ // *************************************************************************************************

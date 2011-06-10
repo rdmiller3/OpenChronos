@@ -34,6 +34,9 @@
 #include "clock.h"
 #include "date.h"
 #include "metrictime.h"
+#if (CONFIG_DST > 0)
+#include "dst.h"
+#endif
 
 #include "menu.h"
 
