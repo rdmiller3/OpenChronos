@@ -102,7 +102,7 @@ void display_metrictime(u8 line, u8 update)
     // three digits
     // (units/second)=(1000/(24*60*60))=(5/432)
     tmp = (tmp * 5) / 432;
-    str[0] = 'o';
+    str[0] = 'O';
     str[3] = (u8)('0' + (tmp % 10));
     tmp /= 10;
     str[2] = (u8)('0' + (tmp % 10));
