@@ -155,7 +155,7 @@ DATA["CONFIG_DISCORDIAN"] = {
         "name": "Discordian Date",
         "depends": [],
         "default": False,
-        "help": "Five seasons of 73 days."
+        "help": "Five seasons of 73 days (plus St. Tib's Day)."
         }
 
 DATA["CONFIG_SIDEREAL"] = {

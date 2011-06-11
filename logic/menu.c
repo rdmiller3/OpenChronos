@@ -80,6 +80,10 @@
 #include "prout.h"
 #endif
 
+#ifdef CONFIG_DISCORDIAN
+#include "discordian.h"
+#endif
+
 #ifdef CONFIG_VARIO
 #include "vario.h"
 #endif
