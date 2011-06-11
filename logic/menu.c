@@ -412,6 +412,18 @@ const struct menu menu_L2_Prout =
 };
 #endif
 
+#ifdef CONFIG_DISCORDIAN
+// Line2 - DISCORDIAN
+const struct menu menu_L2_Discordian =
+{
+	FUNCTION(sx_discordian),				// direct function
+	FUNCTION(mx_discordian),				// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
+	FUNCTION(display_discordian),		// display function
+	FUNCTION(update_time),			// new display data
+};
+#endif
+
 #ifdef CONFIG_STRENGTH
 // Line1 - Kieser Training timer
 const struct menu menu_L1_Strength =

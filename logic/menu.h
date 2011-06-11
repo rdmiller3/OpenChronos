@@ -123,6 +123,11 @@ extern const struct menu menu_L2_RFBSL;
 #ifdef CONFIG_PROUT
 extern const struct menu menu_L2_Prout;
 #endif
+
+#ifdef CONFIG_DISCORDIAN
+extern const struct menu menu_L2_Discordian;
+#endif
+
 #ifdef CONFIG_VARIO
 extern const struct menu menu_L2_Vario;
 #endif

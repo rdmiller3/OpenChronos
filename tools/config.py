@@ -151,6 +151,12 @@ DATA["CONFIG_PROUT"] = {
         "depends": [],
         "default": False}
 
+DATA["CONFIG_DISCORDIAN"] = {
+        "name": "Discordian Date",
+        "depends": [],
+        "default": False,
+        "help": "Five seasons of 73 days."
+        }
 
 DATA["CONFIG_SIDEREAL"] = {
         "name": "Sidereal Time Clock (3418 bytes)",
