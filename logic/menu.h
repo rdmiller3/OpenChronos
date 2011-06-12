@@ -131,6 +131,10 @@ extern const struct menu menu_L2_Prout;
 extern const struct menu menu_L2_Tally;
 #endif
 
+#ifdef CONFIG_DISCORDIAN
+extern const struct menu menu_L2_Discordian;
+#endif
+
 #ifdef CONFIG_VARIO
 extern const struct menu menu_L2_Vario;
 #endif

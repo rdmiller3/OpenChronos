@@ -84,6 +84,10 @@
 #include "tally.h"
 #endif
 
+#ifdef CONFIG_DISCORDIAN
+#include "discordian.h"
+#endif
+
 #ifdef CONFIG_VARIO
 #include "vario.h"
 #endif
@@ -440,6 +444,18 @@ const struct menu menu_L2_Tally =
 	FUNCTION(mx_tally),				// sub menu function
 	FUNCTION(menu_skip_next),		// next item function
 	FUNCTION(display_tally),		// display function
+	FUNCTION(update_time),			// new display data
+};
+#endif
+
+#ifdef CONFIG_DISCORDIAN
+// Line2 - DISCORDIAN
+const struct menu menu_L2_Discordian =
+{
+	FUNCTION(sx_discordian),				// direct function
+	FUNCTION(mx_discordian),				// sub menu function
+	FUNCTION(menu_skip_next),		// next item function
+	FUNCTION(display_discordian),		// display function
 	FUNCTION(update_time),			// new display data
 };
 #endif

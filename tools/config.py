@@ -162,6 +162,13 @@ DATA["CONFIG_TALLY"] = {
                 "The radio interface to read the log is not yet implemented."
         }
 
+DATA["CONFIG_DISCORDIAN"] = {
+        "name": "Discordian Date",
+        "depends": [],
+        "default": False,
+        "help": "Five seasons of 73 days (plus St. Tib's Day)."
+        }
+
 DATA["CONFIG_SIDEREAL"] = {
         "name": "Sidereal Time Clock (3418 bytes)",
         "depends": [],
