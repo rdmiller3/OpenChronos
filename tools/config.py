@@ -166,10 +166,10 @@ DATA["CONFIG_METRICTIME"] = {
         "depends": [],
         "default": False,
         "type": "choices",
-        "values": [(0, "Normal (HH:MM)"), (1, "Metric (9999)"), (2, "'Beats' (o999)"), (3, "Hex-Metric (FFFF)")],
+        "values": [(0, "No metric time"), (1, "4-digit Metric (9999)"), (2, "Swatch 'Beats' (o999)"), (3, "4-digit Hex-Metric (FFFF)")],
         "help": "Calculate and display local time as 'MetricTime'.\n"
-                "'MetricTime' divides the day into a simple count and is displayed as a 4-digit number.\n"
-                "The decimal version counts to 9999.  'Beats' is the old 'Swatch Internet time' which is like decimal metric but only three digits with zero at midnight GMT+1.  The hexadecimal version counts to 0xFFFF."
+                "'MetricTime' divides the day into a simple count in base 10.\n"
+                "The decimal version counts to 9999.  'Beats' is the old 'Swatch Internet time' which is a 3-digit metric locked to GMT+1.  The hexadecimal version counts to 0xFFFF."
         }
 
 DATA["CONFIG_GMT_OFFSET"] = {
