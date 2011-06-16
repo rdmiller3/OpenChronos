@@ -76,6 +76,11 @@
 #ifdef CONFIG_SIDEREAL
 #include "sidereal.h"
 #endif
+
+#ifdef CONFIG_TALLY
+#include "tally.h"
+#endif
+
 // *************************************************************************************************
 // Defines section
 
@@ -804,7 +809,11 @@ void simpliciti_sync_get_data_callback(unsigned int index)
 											simpliciti_data[1] = ((burst_start + index) >> 8) & 0xFF;
 											simpliciti_data[2] = (burst_start + index) & 0xFF;
 											// Assemble payload
+                                            #ifdef CONFIG_TALLY
+                                            assemble_tally_data_payload();
+                                            #else
 											for (i=3; i<BM_SYNC_DATA_LENGTH; i++) simpliciti_data[i] = index;
+                                            #endif
 										} 
 										else if (burst_mode == 2)
 										{

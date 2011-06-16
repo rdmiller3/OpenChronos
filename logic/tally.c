@@ -26,6 +26,7 @@
 #include "vti_ps.h"
 #include "ports.h"
 #include "timer.h"
+#include "simpliciti.h"
 #include "rfsimpliciti.h"
 
 #include "stopwatch.h"
@@ -38,17 +39,9 @@
 
 #include "menu.h"
 
-#include "rfsimpliciti.h"
-
-#ifdef FEATURE_PROVIDE_ACCEL
-#include "acceleration.h"
-#endif
-
 struct tallydata stallydata;
 
 void update_tallystring(void);
-
-u8 isRadio;
 
 void tally_tick(void)
 {
@@ -135,33 +128,20 @@ void update_tallystring(void)
 
 void sx_tally(u8 line)
 {
-    // Toggle the isRadio boolean.
-    isRadio = (isRadio ? 0 : 1);
 }
 
 void mx_tally(u8 line)
 {
-    reset_tally();
+    reset_tally_count();
 }
 
 void display_tally(u8 line, u8 update)
 {
-    if (isRadio)
-    {
-        // TBD
-        // start_tally_sync();
-        display_chars(LCD_SEG_L2_4_0, "RADIO", SEG_ON);
-    }
-    else
-    {
-        display_chars(LCD_SEG_L2_4_0, stallydata.countchars, SEG_ON);
-    }
+    display_chars(LCD_SEG_L2_4_0, stallydata.countchars, SEG_ON);
 }
 
-void reset_tally(void)
+void reset_tally_count(void)
 {
-    isRadio = 0;
-
     // Reset display to all zeros.  (Does NOT clear the log.)
     stallydata.count = 0;
     update_tallystring();
@@ -173,84 +153,83 @@ void reset_tally(void)
 void init_tally(void)
 {
     // Initialize the ringlog.
-    // TBD: load from tally ring in infomem?
+    clear_tally_log();
+    reset_tally_count();
+}
+
+void clear_tally_log(void)
+{
+    int i;
+    for (i = 0; i < TALLY_RINGLOG_MAX_ENTRIES; i++)
+    {
+        stallydata.ringlog[i] = 0;
+    }
     stallydata.ringpos = 0;
     stallydata.ringrolled = 0;
     display_symbol(LCD_ICON_RECORD, SEG_OFF_BLINK_OFF);
-
-    reset_tally();
 }
 
-void start_tally_sync(void)
+void assemble_tally_data_payload(void)
 {
     /*
-        UNTESTED CODE - copied from logic/rfsimpliciti.c:start_simpliciti_sync
+     * put data into simpliciti_data[]
+     *
+     * simpliciti_data[0] is already set to SYNC_ED_TYPE_MEMORY.
+     * simpliciti_data[1] is already set to the hi byte of burst addr.
+     * simpliciti_data[2] is already set to the lo byte of burst addr.
+     * The array is BM_SYNC_DATA_LENGTH (19) bytes long,
+     *      so there are 16 data bytes (4 u32's) per burst.
+     *
+     * burst address zero is special:
+     *  u32 max_entries = TALLY_RINGLOG_MAX_ENTRIES;
+     *  u32 ringpos;
+     *  u32 ringrolled;
+     *  u32 unused;
+     *
+     * All the rest of the bursts hold tally timestamp data.
+     *
+     * All data is transferred in big-endian format.
      */
 
-  	// Clear LINE1
-	//clear_line(LINE1);
-	//fptr_lcd_function_line1(LINE1, DISPLAY_LINE_CLEAR);
-	
-	#ifdef FEATURE_PROVIDE_ACCEL
-	// Stop acceleration sensor
-	as_stop();
-	#endif
+    u16 burst = ((u16)(simpliciti_data[1]) << 8) | simpliciti_data[2];
 
-	// Get updated altitude
-#ifdef CONFIG_ALTITUTDE
-	start_altitude_measurement();
-	stop_altitude_measurement();	
-#endif
-		
-	// Get updated temperature	
-	temperature_measurement(FILTER_OFF);
+    if (burst == 0)
+    {
+        simpliciti_data[3] = 0;
+        simpliciti_data[4] = 0;
+        simpliciti_data[5] = (u8)((TALLY_RINGLOG_MAX_ENTRIES>>8)&0x00ff);
+        simpliciti_data[6] = (u8)(TALLY_RINGLOG_MAX_ENTRIES&0x00ff);
 
-	// Turn on beeper icon to show activity
-	display_symbol(LCD_ICON_BEEPER1, SEG_ON_BLINK_ON);
-	display_symbol(LCD_ICON_BEEPER2, SEG_ON_BLINK_ON);
-	display_symbol(LCD_ICON_BEEPER3, SEG_ON_BLINK_ON);
+        simpliciti_data[7] = 0;
+        simpliciti_data[8] = 0;
+        simpliciti_data[9] = (u8)((stallydata.ringpos>>8)&0x00ff);
+        simpliciti_data[10] = (u8)(stallydata.ringpos&0x00ff);
 
-	// Debounce button event
-	Timer0_A4_Delay(CONV_MS_TO_TICKS(BUTTONS_DEBOUNCE_TIME_OUT));
+        simpliciti_data[11] = 0;
+        simpliciti_data[12] = 0;
+        simpliciti_data[13] = 0;
+        simpliciti_data[14] = stallydata.ringrolled;
 
-	// Prepare radio for RF communication
-	open_radio();
-
-	// Set SimpliciTI mode
-	sRFsmpl.mode = SIMPLICITI_TALLY;
-	
-	// Set SimpliciTI timeout to save battery power
-	sRFsmpl.timeout = SIMPLICITI_TIMEOUT; 
-		
-	// Start SimpliciTI stack. Try to link to access point.
-	// Exit with timeout or by a button DOWN press.
-	if (simpliciti_link())
-	{
-		// Enter sync routine. This will send ready-to-receive packets
-        // at regular intervals to the access point.
-		// The access point replies with a command
-        // (NOP if no other command is set)
-		simpliciti_main_sync();
-	}
-
-	// Set SimpliciTI state to OFF
-	sRFsmpl.mode = SIMPLICITI_OFF;
-
-	// Powerdown radio
-	close_radio();
-	
-	// Clear last button events
-	Timer0_A4_Delay(CONV_MS_TO_TICKS(BUTTONS_DEBOUNCE_TIME_OUT));
-	BUTTONS_IFG = 0x00;  
-	button.all_flags = 0;
-	
-	// Clear icons
-	display_symbol(LCD_ICON_BEEPER1, SEG_OFF_BLINK_OFF);
-	display_symbol(LCD_ICON_BEEPER2, SEG_OFF_BLINK_OFF);
-	display_symbol(LCD_ICON_BEEPER3, SEG_OFF_BLINK_OFF);
-	
-	// Force full display update
-	display.flag.full_update = 1;	
+        simpliciti_data[15] = 0;
+        simpliciti_data[16] = 0;
+        simpliciti_data[17] = 0;
+        simpliciti_data[18] = 0;
+    }
+    else
+    {
+        int i;
+        int first = (burst - 1) * 4; // assuming 4 u32's per burst
+        // just in case...
+        // assumes (TALLY_RINGLOG_MAX_ENTRIES % 4) == 0
+        first = first % TALLY_RINGLOG_MAX_ENTRIES;
+        for (i = 0; i < 4; i++)
+        {
+            simpliciti_data[(i*4)+3] = (u8)((stallydata.ringlog[first + i]>>24)&0x000000ff);
+            simpliciti_data[(i*4)+4] = (u8)((stallydata.ringlog[first + i]>>16)&0x000000ff);
+            simpliciti_data[(i*4)+5] = (u8)((stallydata.ringlog[first + i]>>8)&0x000000ff);
+            simpliciti_data[(i*4)+6] = (u8)((stallydata.ringlog[first + i]>>0)&0x000000ff);
+        }
+    }
 }
 
 #endif /* CONFIG_TALLY */

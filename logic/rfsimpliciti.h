@@ -68,9 +68,6 @@ typedef enum
   SIMPLICITI_PHASE_CLOCK_START,	// Start new phase
   SIMPLICITI_PHASE_CLOCK,	// Phase Clock is running
 #endif
-#ifdef CONFIG_TALLY
-  SIMPLICITI_TALLY,			// Tally info
-#endif
 } simpliciti_mode_t;
 
 // Stop SimpliciTI transmission after 60 minutes to save power
@@ -103,7 +100,7 @@ typedef enum
 // Global Variable section
 struct RFsmpl
 {
-	// SIMPLICITI_OFF, SIMPLICITI_ACCELERATION, SIMPLICITI_BUTTONS
+	// SIMPLICITI_OFF, SIMPLICITI_ACCELERATION, SIMPLICITI_BUTTONS, SIMPLICITY_TALLY
 	simpliciti_mode_t 	mode;
 	
 	// Timeout until SimpliciTI transmission is automatically stopped
