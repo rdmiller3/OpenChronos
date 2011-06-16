@@ -24,14 +24,23 @@ extern void sx_tally(u8 line);
 extern void mx_tally(u8 line);
 extern void display_tally(u8 line, u8 update);
 
-extern void reset_tally(void);
+extern void reset_tally_count(void);
 extern void tally_tick(void);
 extern void init_tally(void);
+extern void clear_tally_log(void);
+extern void assemble_tally_data_payload(void);
+
+// TALLY_RINGLOG_MAX_ENTRIES must be evenly divisible by 4.
+#define TALLY_RINGLOG_MAX_ENTRIES (500u)
+#define TALLY_RINGLOG_WARN_COUNT ((TALLY_RINGLOG_MAX_ENTRIES * 9u) / 10u)
 
 struct tallydata
 {
     u16 count;
     u8 countchars[6];
+    u16 ringpos;
+    u32 ringlog[TALLY_RINGLOG_MAX_ENTRIES]; // in seconds since Y2K
+    u8 ringrolled;
 };
 
 extern struct tallydata stallydata;

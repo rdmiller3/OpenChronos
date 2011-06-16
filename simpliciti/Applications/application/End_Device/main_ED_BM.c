@@ -253,6 +253,7 @@ void simpliciti_main_tx_only(void)
 				// clean up tha buffer first
 				simpliciti_data[0] = 0x00;
 				simpliciti_data[1] = 0x00;
+                // TBD: Why not simpliciti_data[2] = 0x00; ?
 				simpliciti_data[3] = 0x00;
 				simpliciti_data[4] = 0x00;
 

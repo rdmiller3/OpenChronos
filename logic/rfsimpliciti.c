@@ -81,6 +81,10 @@
 #include "dst.h"
 #endif
 
+#ifdef CONFIG_TALLY
+#include "tally.h"
+#endif
+
 // *************************************************************************************************
 // Defines section
 
@@ -742,6 +746,7 @@ void simpliciti_sync_decode_ap_cmd_callback(void)
 										// Set burst mode
 										burst_mode = 1;
 										// Number of packets to send
+                                        // NOTE: burst_end is last PLUS ONE
 										simpliciti_reply_count = burst_end - burst_start;
 										break;
 
@@ -760,6 +765,9 @@ void simpliciti_sync_decode_ap_cmd_callback(void)
 										break;
 		
 		case SYNC_AP_CMD_ERASE_MEMORY:	// Erase data logger memory
+                                        #ifdef CONFIG_TALLY
+                                        clear_tally_log();
+                                        #endif
 										break;
 										
 		case SYNC_AP_CMD_EXIT:			// Exit sync mode
@@ -813,7 +821,11 @@ void simpliciti_sync_get_data_callback(unsigned int index)
 											simpliciti_data[1] = ((burst_start + index) >> 8) & 0xFF;
 											simpliciti_data[2] = (burst_start + index) & 0xFF;
 											// Assemble payload
+                                            #ifdef CONFIG_TALLY
+                                            assemble_tally_data_payload();
+                                            #else
 											for (i=3; i<BM_SYNC_DATA_LENGTH; i++) simpliciti_data[i] = index;
+                                            #endif
 										} 
 										else if (burst_mode == 2)
 										{
