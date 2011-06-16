@@ -738,6 +738,7 @@ void simpliciti_sync_decode_ap_cmd_callback(void)
 										// Set burst mode
 										burst_mode = 1;
 										// Number of packets to send
+                                        // NOTE: burst_end is last PLUS ONE
 										simpliciti_reply_count = burst_end - burst_start;
 										break;
 
