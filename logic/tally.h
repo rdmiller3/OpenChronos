@@ -30,7 +30,8 @@ extern void init_tally(void);
 extern void clear_tally_log(void);
 extern void assemble_tally_data_payload(void);
 
-#define TALLY_RINGLOG_MAX_ENTRIES (800u)
+// TALLY_RINGLOG_MAX_ENTRIES must be evenly divisible by 4.
+#define TALLY_RINGLOG_MAX_ENTRIES (500u)
 #define TALLY_RINGLOG_WARN_COUNT ((TALLY_RINGLOG_MAX_ENTRIES * 9u) / 10u)
 
 struct tallydata
