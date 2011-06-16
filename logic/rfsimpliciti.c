@@ -756,6 +756,9 @@ void simpliciti_sync_decode_ap_cmd_callback(void)
 										break;
 		
 		case SYNC_AP_CMD_ERASE_MEMORY:	// Erase data logger memory
+                                        #ifdef CONFIG_TALLY
+                                        clear_tally_log();
+                                        #endif
 										break;
 										
 		case SYNC_AP_CMD_EXIT:			// Exit sync mode
